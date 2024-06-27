@@ -1,15 +1,21 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
-import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 
 document.addEventListener("DOMContentLoaded", () => {
     // create basic scene
     const scene = new THREE.Scene();
-    const camera = new THREE.OrthographicCamera(-0.5, 0.5, 0.5, -0.5, 0.1, 1000);
+    // const camera = new THREE.OrthographicCamera(-0.5, 0.5, 0.5, -0.5, 0.1, 1000);
+    const camera = new THREE.PerspectiveCamera(
+        75,
+        window.innerWidth / window.innerHeight,
+        0.1,
+        1000
+    );
     camera.position.z = 1;
     const renderer = new THREE.WebGLRenderer({
         antialias: true,
     });
+    // renderer.setClearColor(new THREE.Color("white"));
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
 
@@ -17,12 +23,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.25;
-    controls.enabled = false;
+    // controls.enabled = false;
 
+    const loader = new THREE.TextureLoader();
+    const shText = loader.load("/sh03.png");
     // add object
     const vs = document.getElementById("vertexShader").textContent;
     const fs = document.getElementById("fragmentShader").textContent;
-    // const geometry = new THREE.PlaneGeometry(1, 1, 32, 32);
     const material = new THREE.ShaderMaterial({
         vertexShader: vs,
         fragmentShader: fs,
@@ -31,11 +38,14 @@ document.addEventListener("DOMContentLoaded", () => {
             uResolution: new THREE.Uniform(
                 new THREE.Vector2(window.innerWidth, window.innerHeight)
             ),
-            uMouse: new THREE.Uniform(new THREE.Vector4(0, 0, 0, 0)),
+            uMouse: new THREE.Uniform(new THREE.Vector2(0, 0)),
+            uTexture: new THREE.Uniform(shText),
         },
         side: THREE.DoubleSide,
+        // wireframe: true,
     });
-    const geometry = new THREE.SphereGeometry(2.5, 32, 32);
+    // const geometry = new THREE.SphereGeometry(2, 64, 64);
+    const geometry = new THREE.PlaneGeometry(1, 1, 32, 32);
     const plane = new THREE.Mesh(geometry, material);
     scene.add(plane);
 
@@ -66,8 +76,9 @@ document.addEventListener("DOMContentLoaded", () => {
             raycaster.setFromCamera(mouse, camera);
             const intersects = raycaster.intersectObjects(scene.children);
             if (intersects.length > 0) {
-                const { x, y, z } = intersects[0].point;
-                plane.material.uniforms.uMouse.value = new THREE.Vector4(x, y, z, 0);
+                const { x, y } = intersects[0].point;
+                console.log(x, y);
+                plane.material.uniforms.uMouse.value = new THREE.Vector2(e.clientX, e.clientY);
             }
         },
         false
