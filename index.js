@@ -22,7 +22,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // add object
     const vs = document.getElementById("vertexShader").textContent;
     const fs = document.getElementById("fragmentShader").textContent;
-    const geometry = new THREE.PlaneGeometry(1, 1, 32, 32);
+    // const geometry = new THREE.PlaneGeometry(1, 1, 32, 32);
     const material = new THREE.ShaderMaterial({
         vertexShader: vs,
         fragmentShader: fs,
@@ -35,7 +35,7 @@ document.addEventListener("DOMContentLoaded", () => {
         },
         side: THREE.DoubleSide,
     });
-    // const geometry = new THREE.SphereGeometry(2.5, 32, 32);
+    const geometry = new THREE.SphereGeometry(2.5, 32, 32);
     const plane = new THREE.Mesh(geometry, material);
     scene.add(plane);
 
