@@ -1,6 +1,5 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
-import { TrackballControls } from "three/addons/controls/TrackBallControls.js";
 import GUI from "lil-gui";
 import CustomShaderMaterial from "three-custom-shader-material/vanilla";
 
