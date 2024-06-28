@@ -1,6 +1,8 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import { TrackballControls } from "three/addons/controls/TrackBallControls.js";
 import GUI from "lil-gui";
+import CustomShaderMaterial from "three-custom-shader-material/vanilla";
 
 document.addEventListener("DOMContentLoaded", () => {
     const gui = new GUI();
@@ -9,7 +11,7 @@ document.addEventListener("DOMContentLoaded", () => {
         order: 3,
         degree: 7,
         lineWidth: 0.84,
-        lineCount: 34,
+        lineCount: 12,
         lineMultiplier: 15,
         color2: "#fff",
         color1: "#000",
@@ -28,14 +30,15 @@ document.addEventListener("DOMContentLoaded", () => {
     const renderer = new THREE.WebGLRenderer({
         antialias: true,
     });
+    renderer.setPixelRatio(window.devicePixelRatio);
     // renderer.setClearColor(new THREE.Color("white"));
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
 
     // add orbit controls
     const controls = new OrbitControls(camera, renderer.domElement);
-    controls.enableDamping = true;
-    controls.dampingFactor = 0.25;
+    // const controls = new TrackballControls(camera, renderer.domElement);
+    controls.rotateSpeed = 1.0;
     // controls.enabled = false;
 
     const loader = new THREE.TextureLoader();
@@ -43,9 +46,12 @@ document.addEventListener("DOMContentLoaded", () => {
     // add object
     const vs = document.getElementById("vertexShader").textContent;
     const fs = document.getElementById("fragmentShader").textContent;
-    const material = new THREE.ShaderMaterial({
+
+    const material = new CustomShaderMaterial({
+        baseMaterial: THREE.MeshPhysicalMaterial,
         vertexShader: vs,
         fragmentShader: fs,
+        silent: true, // Disables the default warning if true
         uniforms: {
             uTime: new THREE.Uniform(0),
             uResolution: new THREE.Uniform(
@@ -61,15 +67,23 @@ document.addEventListener("DOMContentLoaded", () => {
             uColor1: new THREE.Uniform(new THREE.Color(guiObject.color1)),
             uColor2: new THREE.Uniform(new THREE.Color(guiObject.color2)),
         },
+        flatShading: false,
         side: THREE.DoubleSide,
-        // wireframe: true,
+        roughness: 0.8,
+        metalness: 0,
     });
-    const geometry = new THREE.SphereGeometry(2, 128, 128);
-    // const geometry = new THREE.PlaneGeometry(1, 1, 32, 32);
+    const geometry = new THREE.SphereGeometry(2, 64, 64);
     const plane = new THREE.Mesh(geometry, material);
-    //rotate to 120rad
-    plane.rotation.x = Math.PI / 6;
+    plane.castShadow = false;
     scene.add(plane);
+
+    // add light
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+    scene.add(ambientLight);
+
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 1.5);
+    directionalLight.position.set(0, 0, 10);
+    scene.add(directionalLight);
 
     // resize handling
     window.addEventListener(
@@ -81,6 +95,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 window.innerWidth,
                 window.innerHeight
             );
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
         },
         false
     );
@@ -99,8 +115,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const intersects = raycaster.intersectObjects(scene.children);
             if (intersects.length > 0) {
                 const { x, y } = intersects[0].point;
-                console.log(x, y);
-                plane.material.uniforms.uMouse.value = new THREE.Vector2(e.clientX, e.clientY);
+                plane.material.uniforms.uMouse.value = new THREE.Vector2(x, y);
             }
         },
         false
