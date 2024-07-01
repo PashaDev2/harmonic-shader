@@ -85,16 +85,16 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     const outlineGeometry = new THREE.SphereGeometry(2, 64, 64);
     const outline = new THREE.Mesh(outlineGeometry, outlineMaterial);
-    outline.scale.set(1.005, 1.005, 1.005);
+    outline.scale.set(1.0075, 1.0075, 1.0075);
     scene.add(outline);
 
     // add light
-    const ambientLight = new THREE.AmbientLight(0xffffff, 1.5);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 3.5);
     scene.add(ambientLight);
 
     const directionalLight = new THREE.DirectionalLight(0xffffff, 1.5);
     directionalLight.position.set(0, 0, 10);
-    // directionalLight.visible = false;
+    directionalLight.visible = false;
     scene.add(directionalLight);
 
     // resize handling
@@ -174,6 +174,8 @@ document.addEventListener("DOMContentLoaded", () => {
     gui.add(directionalLight, "visible").name("Directional Light");
     // toggle for ambient light
     gui.add(ambientLight, "visible").name("Ambient Light");
+    // intensity for ambient light
+    gui.add(ambientLight, "intensity", 0, 10).name("Ambient Light Intensity");
     // add select with easing functions
     gui.add(guiObject, "easing", [
         "linear",
@@ -193,6 +195,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
         plane.material.uniforms.uEasing.value = easing;
     });
+    // roughness and metalness
+    gui.add(material, "roughness", 0, 1).name("Roughness");
+    gui.add(material, "metalness", 0, 1).name("Metalness");
 
     const render = () => {
         requestAnimationFrame(render);
