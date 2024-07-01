@@ -156,6 +156,10 @@ document.addEventListener("DOMContentLoaded", () => {
     gui.addColor(guiObject, "color2").onChange(value => {
         plane.material.uniforms.uColor2.value = new THREE.Color(value);
     });
+    // toggle for directional light
+    gui.add(directionalLight, "visible").name("Directional Light");
+    // toggle for ambient light
+    gui.add(ambientLight, "visible").name("Ambient Light");
     // add select with easing functions
     gui.add(guiObject, "easing", [
         "linear",
