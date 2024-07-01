@@ -213,15 +213,18 @@
 
                 float r = length(sh1); // convert from Cartesian to Polar coordinates
                 float theta1 = atan(sh1.y, sh1.x);
+                float edgeWidth = 1.0 / max(uResolution.x, uResolution.y);
 
                 float dt = 0.0;
                 float circle = 0.0;
                 if(sh1.x < 0.0 || sh1.x > 0.0) {
                     vec2 sh2 = mod(fract(sh1) + time * 0.1, 1.0);
                     dt = sin(mod(length((sh2 - vec2(0.5, -0.0)) * time), PI));
-                    circle = cos(mod(sh2.x * uLineCount, PI * uLineWidth) - PI) * 1.;
+                    //circle = cos(mod(sh2.x * uLineCount, PI * uLineWidth) - PI) * 15.;
+                    // Compute the distance to the circle and smooth it
+                    float dCircle = cos(mod(sh2.x * uLineCount, PI * uLineWidth) - PI) * 15.;
+                    circle = smoothstep(-edgeWidth, edgeWidth, 1.0 - abs(dCircle));
                 }
-
                 color = mix(uColor1, uColor2, circle);
                 vec4 final = vec4(color, 1.0);
                 //gl_FragColor = final;

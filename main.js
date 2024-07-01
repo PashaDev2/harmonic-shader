@@ -8,12 +8,12 @@ document.addEventListener("DOMContentLoaded", () => {
     const guiObject = {
         timeSpeed: 0.01,
         order: 3,
-        degree: 7,
-        lineWidth: 0.84,
-        lineCount: 12,
+        degree: 3,
+        lineWidth: 0.53,
+        lineCount: 18,
         lineMultiplier: 15,
-        color2: "#fff",
-        color1: "#000",
+        color2: "#000",
+        color1: "#f8f6f3",
         easing: 0,
     };
 
@@ -31,7 +31,7 @@ document.addEventListener("DOMContentLoaded", () => {
         antialias: true,
     });
     renderer.setPixelRatio(window.devicePixelRatio);
-    // renderer.setClearColor(new THREE.Color("white"));
+    renderer.setClearColor(new THREE.Color("#f8f6f3"));
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
 
@@ -79,11 +79,12 @@ document.addEventListener("DOMContentLoaded", () => {
     scene.add(plane);
 
     // add light
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 1.5);
     scene.add(ambientLight);
 
     const directionalLight = new THREE.DirectionalLight(0xffffff, 1.5);
     directionalLight.position.set(0, 0, 10);
+    // directionalLight.visible = false;
     scene.add(directionalLight);
 
     // resize handling
@@ -186,6 +187,9 @@ document.addEventListener("DOMContentLoaded", () => {
         controls.update();
         // update uniforms
         plane.material.uniforms.uTime.value += guiObject.timeSpeed;
+        // log azimuthal angle and polar angle
+        console.log("azimuthal angle", controls.getAzimuthalAngle());
+        console.log("polar angle", controls.getPolarAngle());
 
         renderer.render(scene, camera);
     };
