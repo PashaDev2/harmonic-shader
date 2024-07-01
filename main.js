@@ -164,6 +164,7 @@ document.addEventListener("DOMContentLoaded", () => {
     //     });
     gui.addColor(guiObject, "color1").onChange(value => {
         plane.material.uniforms.uColor1.value = new THREE.Color(value);
+        renderer.setClearColor(new THREE.Color(value));
     });
     gui.addColor(guiObject, "color2").onChange(value => {
         plane.material.uniforms.uColor2.value = new THREE.Color(value);
