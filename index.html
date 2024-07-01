@@ -196,23 +196,10 @@
                 int order = uOrder;
 
                 // compute spherical harmonics
-                vec2 sh1 = sphere_harm(theta, phi, degree, order);
-                // generate line pattern in each segment
-                float linewidth = uLineWidth;  //width of the antialising, adjust as needed
-                float edge0 = 0.89 - linewidth;
-                float edge1 = 0.91 - linewidth;
-
-                // infinite line pattern
-                float lines = 0.0;
-                // mix colors
-                if(sh1.x < 0.0) {
-                    lines = sin(uLineCount * theta + uLineMultiplier * time);
-                    lines = smoothstep(edge0, edge1, lines);
-                }
-                if(sh1.x > 0.0) {
-                    lines = sin(uLineCount * phi + uLineMultiplier * time);
-                    lines = smoothstep(edge0, edge1, lines);
-                }
+                vec2 sh1 = sphere_harm(theta, phi, degree, order) + sphere_harm(theta, phi, degree, order);
+                //vec2 sh1 = sphere_harm(theta, phi, 4, 2);
+                //vec2 sh2 = sphere_harm(theta, phi, 3, 1);
+                //vec2 sumSh = sh1 + sh2;
 
                 float r = length(sh1); // convert from Cartesian to Polar coordinates
                 float theta1 = atan(sh1.y, sh1.x);
@@ -222,9 +209,9 @@
                 float circle = 0.0;
                 if(sh1.x < 0.0 || sh1.x > 0.0) {
                     vec2 sh2 = mod(fract(sh1) + time * 0.1, 1.0);
-                    dt = sin(mod(length((sh2 - vec2(0.5, -0.0))), PI));
+                    dt = cos(mod(length((sh2 - vec2(0.5, -0.0))), PI));
                     // Compute the distance to the circle and smooth it
-                    float dCircle = cos(mod(sh2.x * uLineCount, PI * uLineWidth) - PI * uLineWidth) * 10.;
+                    float dCircle = sin(mod(sh2.x * uLineCount, PI) - PI) * 10.0 * uLineWidth;
                     circle = smoothstep(-edgeWidth, edgeWidth, 1.0 - abs(dCircle));
                 }
 

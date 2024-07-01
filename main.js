@@ -2,13 +2,14 @@ import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import GUI from "lil-gui";
 import CustomShaderMaterial from "three-custom-shader-material/vanilla";
+import { TrackballControls } from "three/examples/jsm/Addons.js";
 
 document.addEventListener("DOMContentLoaded", () => {
     const gui = new GUI();
     const guiObject = {
         timeSpeed: 0.01,
-        order: 3,
-        degree: 3,
+        order: 2,
+        degree: 4,
         lineWidth: 0.6,
         lineCount: 30,
         lineMultiplier: 15,
@@ -39,6 +40,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const controls = new OrbitControls(camera, renderer.domElement);
     // const controls = new TrackballControls(camera, renderer.domElement);
     controls.rotateSpeed = 1.0;
+    // set azimuthal angle and polar angle
+    const defaultPolarAngle = 1.551244071072532;
+    const defaultAzimuthalAngle = -0.5080632974865708;
+    controls.polarAngle = defaultPolarAngle;
+    controls.azimuthalAngle = defaultAzimuthalAngle;
     // controls.enabled = false;
 
     const loader = new THREE.TextureLoader();
@@ -206,8 +212,8 @@ document.addEventListener("DOMContentLoaded", () => {
         // update uniforms
         plane.material.uniforms.uTime.value += guiObject.timeSpeed;
         // log azimuthal angle and polar angle
-        console.log("azimuthal angle", controls.getAzimuthalAngle());
-        console.log("polar angle", controls.getPolarAngle());
+        // console.log("azimuthal angle", controls.getAzimuthalAngle());
+        // console.log("polar angle", controls.getPolarAngle());
 
         renderer.render(scene, camera);
     };
