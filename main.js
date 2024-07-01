@@ -14,6 +14,7 @@ document.addEventListener("DOMContentLoaded", () => {
         lineMultiplier: 15,
         color2: "#fff",
         color1: "#000",
+        easing: 0,
     };
 
     // create basic scene
@@ -65,6 +66,7 @@ document.addEventListener("DOMContentLoaded", () => {
             uLineMultiplier: new THREE.Uniform(guiObject.lineMultiplier),
             uColor1: new THREE.Uniform(new THREE.Color(guiObject.color1)),
             uColor2: new THREE.Uniform(new THREE.Color(guiObject.color2)),
+            uEasing: new THREE.Uniform(guiObject.easing),
         },
         flatShading: false,
         side: THREE.DoubleSide,
@@ -122,7 +124,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // add gui
     gui.add(guiObject, "timeSpeed", 0.001, 0.05).onChange(value => {
-        plane.material.uniforms.uTime.value = value;
+        guiObject.timeSpeed = value;
+        plane.material.uniforms.uTime.value = 0;
     });
     gui.add(guiObject, "order", 1, 10)
         .step(1)
@@ -142,16 +145,35 @@ document.addEventListener("DOMContentLoaded", () => {
         .onChange(value => {
             plane.material.uniforms.uLineCount.value = value;
         });
-    gui.add(guiObject, "lineMultiplier", 1, 100)
-        .step(1)
-        .onChange(value => {
-            plane.material.uniforms.uLineMultiplier.value = value;
-        });
+    // gui.add(guiObject, "lineMultiplier", 1, 100)
+    //     .step(1)
+    //     .onChange(value => {
+    //         plane.material.uniforms.uLineMultiplier.value = value;
+    //     });
     gui.addColor(guiObject, "color1").onChange(value => {
         plane.material.uniforms.uColor1.value = new THREE.Color(value);
     });
     gui.addColor(guiObject, "color2").onChange(value => {
         plane.material.uniforms.uColor2.value = new THREE.Color(value);
+    });
+    // add select with easing functions
+    gui.add(guiObject, "easing", [
+        "linear",
+        "exponentialIn",
+        "elasticIn",
+        "cubicIn",
+        "sineIn",
+        "bounceOut",
+    ]).onChange(value => {
+        let easing = 1;
+        if (value === "linear") easing = 0;
+        if (value === "cubicIn") easing = 1;
+        if (value === "elasticIn") easing = 2;
+        if (value === "exponentialIn") easing = 3;
+        if (value === "sineIn") easing = 4;
+        if (value === "bounceOut") easing = 5;
+
+        plane.material.uniforms.uEasing.value = easing;
     });
 
     const render = () => {

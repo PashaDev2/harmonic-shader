@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
     <head>
         <meta charset="UTF-8" />
@@ -52,9 +52,10 @@
             uniform float uLineMultiplier;
             uniform vec3 uColor1;
             uniform vec3 uColor2;
+            uniform int uEasing;
 
             #define SQRT2PI 2.506628274631
-            //#define PI 3.14159265359
+            #define HALF_PI 1.5707963267948966
 
             float sineInOut(float t) {
               return -0.5 * (cos(PI * t) - 1.0);
@@ -129,11 +130,60 @@
               return cexp(vec2(0.0,float(m)*phi))*abs_value;
             }
 
+            // Easing functions
+            float cubicIn(float t) {
+                return t * t * t;
+            }
+            float elasticIn(float t) {
+                return sin(13.0 * t * HALF_PI) * pow(2.0, 10.0 * (t - 1.0));
+            }
+            float exponentialIn(float t) {
+                return t == 0.0 ? t : pow(2.0, 10.0 * (t - 1.0));
+            }
+            float sineIn(float t) {
+                return sin((t - 1.0) * HALF_PI) + 1.0;
+            }
+            float bounceOut(float t) {
+                const float a = 4.0 / 11.0;
+                const float b = 8.0 / 11.0;
+                const float c = 9.0 / 10.0;
+
+                const float ca = 4356.0 / 361.0;
+                const float cb = 35442.0 / 1805.0;
+                const float cc = 16061.0 / 1805.0;
+
+                float t2 = t * t;
+
+                return t < a
+                  ? 7.5625 * t2
+                  : t < b
+                    ? 9.075 * t2 - 9.9 * t + 3.4
+                    : t < c
+                      ? ca * t2 - cb * t + cc
+                      : 10.8 * t * t - 20.52 * t + 10.72;
+              }
+
+
             void main() {
                 vec2 uv = vUv;
                 vec3 n = normalize(vNormale);
                 vec3 color = uColor1;
-                float time = sineInOut(uTime);
+                float time = uTime;
+                if(uEasing == 1) {
+                    time = cubicIn(uTime);
+                }
+                if(uEasing == 2) {
+                    time = elasticIn(uTime * 0.1);
+                }
+                if(uEasing == 3) {
+                    time = exponentialIn(uTime * 0.1);
+                }
+                if(uEasing == 4) {
+                    time = sineIn(uTime);
+                }
+                if(uEasing == 5) {
+                    time = bounceOut(uTime);
+                }
 
                 //float theta = acos(n.y);
                 float sinTheta = sqrt(1.0 - n.y * n.y);
@@ -149,12 +199,30 @@
                 float edge0 = 0.89 - linewidth;
                 float edge1 = 0.91 - linewidth;
 
-                // 10% of the segment should be white
-                //float lines = smoothstep(edge0, edge1, fract((sh1.x) * (uLineCount + sin(time) * uLineMultiplier) - 0.2));
-                float linesX = step(linewidth, fract(sh1.x * (uLineCount + sin(time) * uLineMultiplier) - 0.2));
-                float linesY = smoothstep(linewidth, linewidth, fract(sh1.y * (uLineCount + sin(time) * uLineMultiplier) - 0.2));
-                float lines = linesX;
-                color = mix(uColor1, uColor2, lines);
+                // infinite line pattern
+                float lines = 0.0;
+                // mix colors
+                if(sh1.x < 0.0) {
+                    lines = sin(uLineCount * theta + uLineMultiplier * time);
+                    lines = smoothstep(edge0, edge1, lines);
+                }
+                if(sh1.x > 0.0) {
+                    lines = sin(uLineCount * phi + uLineMultiplier * time);
+                    lines = smoothstep(edge0, edge1, lines);
+                }
+
+                float r = length(sh1); // convert from Cartesian to Polar coordinates
+                float theta1 = atan(sh1.y, sh1.x);
+
+                float dt = 0.0;
+                float circle = 0.0;
+                if(sh1.x < 0.0 || sh1.x > 0.0) {
+                    vec2 sh2 = mod(fract(sh1) + time * 0.1, 1.0);
+                    dt = sin(mod(length((sh2 - vec2(0.5, -0.0)) * time), PI));
+                    circle = cos(mod(sh2.x * uLineCount, PI * uLineWidth) - PI) * 1.;
+                }
+
+                color = mix(uColor1, uColor2, circle);
                 vec4 final = vec4(color, 1.0);
                 //gl_FragColor = final;
                 csm_DiffuseColor = final;
