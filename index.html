@@ -155,14 +155,17 @@
                 float t2 = t * t;
 
                 return t < a
-                  ? 7.5625 * t2
-                  : t < b
+                    ? 7.5625 * t2
+                    : t < b
                     ? 9.075 * t2 - 9.9 * t + 3.4
                     : t < c
-                      ? ca * t2 - cb * t + cc
-                      : 10.8 * t * t - 20.52 * t + 10.72;
-              }
-
+                        ? ca * t2 - cb * t + cc
+                        : 10.8 * t * t - 20.52 * t + 10.72;
+            }
+            float sdCircle( vec2 p, float r )
+            {
+                return length(p) - r;
+            }
 
             void main() {
                 vec2 uv = vUv;
@@ -219,13 +222,14 @@
                 float circle = 0.0;
                 if(sh1.x < 0.0 || sh1.x > 0.0) {
                     vec2 sh2 = mod(fract(sh1) + time * 0.1, 1.0);
-                    dt = sin(mod(length((sh2 - vec2(0.5, -0.0)) * time), PI));
-                    //circle = cos(mod(sh2.x * uLineCount, PI * uLineWidth) - PI) * 15.;
+                    dt = sin(mod(length((sh2 - vec2(0.5, -0.0))), PI));
                     // Compute the distance to the circle and smooth it
-                    float dCircle = cos(mod(sh2.x * uLineCount, PI * uLineWidth) - PI) * 15.;
+                    float dCircle = cos(mod(sh2.x * uLineCount, PI * uLineWidth) - PI * uLineWidth) * 10.;
                     circle = smoothstep(-edgeWidth, edgeWidth, 1.0 - abs(dCircle));
                 }
+
                 color = mix(uColor1, uColor2, circle);
+
                 vec4 final = vec4(color, 1.0);
                 //gl_FragColor = final;
                 csm_DiffuseColor = final;

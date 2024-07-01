@@ -10,7 +10,7 @@ document.addEventListener("DOMContentLoaded", () => {
         order: 3,
         degree: 3,
         lineWidth: 0.53,
-        lineCount: 18,
+        lineCount: 20,
         lineMultiplier: 15,
         color2: "#000",
         color1: "#f8f6f3",
@@ -78,6 +78,16 @@ document.addEventListener("DOMContentLoaded", () => {
     plane.castShadow = false;
     scene.add(plane);
 
+    // add circlular outline for sphere
+    const outlineMaterial = new THREE.MeshBasicMaterial({
+        color: new THREE.Color(guiObject.color2),
+        side: THREE.BackSide,
+    });
+    const outlineGeometry = new THREE.SphereGeometry(2, 64, 64);
+    const outline = new THREE.Mesh(outlineGeometry, outlineMaterial);
+    outline.scale.set(1.005, 1.005, 1.005);
+    scene.add(outline);
+
     // add light
     const ambientLight = new THREE.AmbientLight(0xffffff, 1.5);
     scene.add(ambientLight);
@@ -135,6 +145,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     gui.add(guiObject, "lineWidth", 0.001, 1).onChange(value => {
         plane.material.uniforms.uLineWidth.value = value;
+        outline.scale.set(1 + value * 0.01, 1 + value * 0.01, 1 + value * 0.01);
     });
     gui.add(guiObject, "degree", 1, 10)
         .step(1)
@@ -156,6 +167,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     gui.addColor(guiObject, "color2").onChange(value => {
         plane.material.uniforms.uColor2.value = new THREE.Color(value);
+        outlineMaterial.color = new THREE.Color(value);
     });
     // toggle for directional light
     gui.add(directionalLight, "visible").name("Directional Light");
