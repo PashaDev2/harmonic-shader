@@ -197,13 +197,10 @@
 
                 // compute spherical harmonics
                 vec2 sh1 = sphere_harm(theta, phi, degree, order) + sphere_harm(theta, phi, degree, order);
-                //vec2 sh1 = sphere_harm(theta, phi, 4, 2);
-                //vec2 sh2 = sphere_harm(theta, phi, 3, 1);
-                //vec2 sumSh = sh1 + sh2;
 
                 float r = length(sh1); // convert from Cartesian to Polar coordinates
                 float theta1 = atan(sh1.y, sh1.x);
-                float edgeWidth = 1.0 / max(uResolution.x, uResolution.y);
+                float edgeWidth = 0.01;
 
                 float dt = 0.0;
                 float circle = 0.0;
@@ -211,8 +208,8 @@
                     vec2 sh2 = mod(fract(sh1) + time * 0.1, 1.0);
                     dt = cos(mod(length((sh2 - vec2(0.5, -0.0))), PI));
                     // Compute the distance to the circle and smooth it
-                    float dCircle = sin(mod(sh2.x * uLineCount, PI) - PI) * 10.0 * uLineWidth;
-                    circle = smoothstep(-edgeWidth, edgeWidth, 1.0 - abs(dCircle));
+                    float dCircle = sin(mod(sh2.x * uLineCount, 1.0)) * 10.;
+                    circle = smoothstep(-edgeWidth, edgeWidth, (1.0 * uLineWidth) - abs(dCircle));
                 }
 
                 color = mix(uColor1, uColor2, circle);

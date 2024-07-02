@@ -6,28 +6,31 @@ import { TrackballControls } from "three/examples/jsm/Addons.js";
 
 document.addEventListener("DOMContentLoaded", () => {
     const gui = new GUI();
+    const query = new URLSearchParams(window.location.search);
     const guiObject = {
         timeSpeed: 0.01,
         order: 2,
         degree: 4,
-        lineWidth: 0.6,
-        lineCount: 30,
+        lineWidth: 1.6,
+        lineCount: 15,
         lineMultiplier: 15,
         color2: "#000",
         color1: "#f8f6f3",
         easing: 0,
+        cameraType: query.get("camera") == "p" ? "PerspectiveCamera" : "OrthographicCamera",
     };
-
+    let guiFov = null;
     // create basic scene
+    let camera = null;
     const scene = new THREE.Scene();
-    // const camera = new THREE.OrthographicCamera(-0.5, 0.5, 0.5, -0.5, 0.1, 1000);
-    const camera = new THREE.PerspectiveCamera(
-        75,
-        window.innerWidth / window.innerHeight,
-        0.1,
-        1000
-    );
-    camera.position.z = 3.5;
+    if (guiObject.cameraType === "OrthographicCamera") {
+        const aspect = window.innerWidth / window.innerHeight;
+        camera = new THREE.OrthographicCamera(-2 * aspect, 2 * aspect, 2, -2, 0.1, 1000);
+    }
+    if (guiObject.cameraType === "PerspectiveCamera") {
+        camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.1, 1000);
+    }
+    camera.position.z = 6;
     const renderer = new THREE.WebGLRenderer({
         antialias: true,
     });
@@ -37,7 +40,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.body.appendChild(renderer.domElement);
 
     // add orbit controls
-    const controls = new OrbitControls(camera, renderer.domElement);
+    let controls = new OrbitControls(camera, renderer.domElement);
     // const controls = new TrackballControls(camera, renderer.domElement);
     controls.rotateSpeed = 1.0;
     // set azimuthal angle and polar angle
@@ -95,7 +98,7 @@ document.addEventListener("DOMContentLoaded", () => {
     scene.add(outline);
 
     // add light
-    const ambientLight = new THREE.AmbientLight(0xffffff, 3.5);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 3);
     scene.add(ambientLight);
 
     const directionalLight = new THREE.DirectionalLight(0xffffff, 1.5);
@@ -113,7 +116,17 @@ document.addEventListener("DOMContentLoaded", () => {
                 window.innerWidth,
                 window.innerHeight
             );
-            camera.aspect = window.innerWidth / window.innerHeight;
+            if (camera instanceof THREE.OrthographicCamera) {
+                // set aspect ratio for orthographic camera
+                const aspect = window.innerWidth / window.innerHeight;
+                camera.left = -2 * aspect;
+                camera.right = 2 * aspect;
+                camera.top = 2;
+                camera.bottom = -2;
+            }
+            if (camera instanceof THREE.PerspectiveCamera) {
+                camera.aspect = window.innerWidth / window.innerHeight;
+            }
             camera.updateProjectionMatrix();
         },
         false
@@ -149,9 +162,9 @@ document.addEventListener("DOMContentLoaded", () => {
         .onChange(value => {
             plane.material.uniforms.uOrder.value = value;
         });
-    gui.add(guiObject, "lineWidth", 0.001, 1).onChange(value => {
+    gui.add(guiObject, "lineWidth", 0.001, 5).onChange(value => {
         plane.material.uniforms.uLineWidth.value = value;
-        outline.scale.set(1 + value * 0.01, 1 + value * 0.01, 1 + value * 0.01);
+        outline.scale.set(1 + value * 0.006, 1 + value * 0.006, 1 + value * 0.006);
     });
     gui.add(guiObject, "degree", 1, 10)
         .step(1)
@@ -204,6 +217,40 @@ document.addEventListener("DOMContentLoaded", () => {
     // roughness and metalness
     gui.add(material, "roughness", 0, 1).name("Roughness");
     gui.add(material, "metalness", 0, 1).name("Metalness");
+    // camera type
+    gui.add(guiObject, "cameraType", ["PerspectiveCamera", "OrthographicCamera"]).onChange(
+        value => {
+            if (value === "PerspectiveCamera") {
+                camera = new THREE.PerspectiveCamera(
+                    40,
+                    window.innerWidth / window.innerHeight,
+                    0.1,
+                    1000
+                );
+                camera.position.z = 6;
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                controls.dispose();
+                controls = new OrbitControls(camera, renderer.domElement);
+            } else {
+                const aspect = window.innerWidth / window.innerHeight;
+                camera = new THREE.OrthographicCamera(-2 * aspect, 2 * aspect, 2, -2, 0.1, 1000);
+                camera.position.z = 6;
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                controls.dispose();
+                controls = new OrbitControls(camera, renderer.domElement);
+            }
+        }
+    );
+    // camera fov
+    if (camera instanceof THREE.PerspectiveCamera)
+        guiFov = gui
+            .add(camera, "fov", 0, 180)
+            .name("Camera FOV")
+            .onChange(() => {
+                camera.updateProjectionMatrix();
+            });
 
     const render = () => {
         requestAnimationFrame(render);
