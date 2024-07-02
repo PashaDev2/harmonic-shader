@@ -5,7 +5,7 @@ import { GUI } from "lil-gui";
 document.addEventListener("DOMContentLoaded", () => {
     const debugObject = {
         x: 0,
-        y: 0,
+        y: 35,
     };
 
     const gui = new GUI();
