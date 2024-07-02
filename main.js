@@ -2,7 +2,6 @@ import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import GUI from "lil-gui";
 import CustomShaderMaterial from "three-custom-shader-material/vanilla";
-import { TrackballControls } from "three/examples/jsm/Addons.js";
 
 document.addEventListener("DOMContentLoaded", () => {
     const gui = new GUI();
@@ -32,11 +31,12 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     camera.position.z = 6;
     const renderer = new THREE.WebGLRenderer({
-        antialias: true,
+        antialias: false,
     });
-    renderer.setPixelRatio(window.devicePixelRatio);
-    renderer.setClearColor(new THREE.Color("#f8f6f3"));
     renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(window.devicePixelRatio);
+    console.log("renderer", renderer.pixelRatio);
+    renderer.setClearColor(new THREE.Color("#f8f6f3"));
     document.body.appendChild(renderer.domElement);
 
     // add orbit controls
