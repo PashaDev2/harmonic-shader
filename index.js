@@ -1,8 +1,15 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
-import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import { GUI } from "lil-gui";
 
 document.addEventListener("DOMContentLoaded", () => {
+    const debugObject = {
+        x: 0,
+        y: 0,
+    };
+
+    const gui = new GUI();
+
     // create basic scene
     const scene = new THREE.Scene();
     const camera = new THREE.OrthographicCamera(-0.5, 0.5, 0.5, -0.5, 0.1, 1000);
@@ -32,6 +39,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 new THREE.Vector2(window.innerWidth, window.innerHeight)
             ),
             uMouse: new THREE.Uniform(new THREE.Vector4(0, 0, 0, 0)),
+            uX: new THREE.Uniform(debugObject.x),
+            uY: new THREE.Uniform(debugObject.y),
         },
         side: THREE.DoubleSide,
     });
@@ -72,6 +81,24 @@ document.addEventListener("DOMContentLoaded", () => {
         },
         false
     );
+
+    // debug
+    gui.add(debugObject, "x")
+        .min(0)
+        .max(100)
+        .step(1)
+        .name("uX")
+        .onChange(() => {
+            plane.material.uniforms.uX.value = debugObject.x;
+        });
+    gui.add(debugObject, "y")
+        .min(0)
+        .max(100)
+        .step(1)
+        .name("uY")
+        .onChange(() => {
+            plane.material.uniforms.uY.value = debugObject.y;
+        });
 
     const render = () => {
         requestAnimationFrame(render);

@@ -17,15 +17,6 @@
         </style>
     </head>
     <body>
-        <script defer type="importmap">
-            {
-                "imports": {
-                    "three": "https://cdn.jsdelivr.net/npm/three@0.165.0/build/three.module.js",
-                    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.165.0/examples/jsm/"
-                }
-            }
-        </script>
-
         <script type="x-shader/x-vertex" id="vertexShader">
             varying vec3 vNormal;
             varying vec3 vPosition;
@@ -48,6 +39,9 @@
             uniform vec4 uMouse;
             varying vec2 vUv;
 
+            uniform float uX;
+            uniform float uY;
+
             float sdCircle( vec2 p, float r ) {
                 return length(p) - r;
             }
@@ -59,6 +53,7 @@
             const float TILE_MIN = -.5;
             const float TILE_MAX = .5;
             const float PI = 4. * atan(1.);
+
 
             // Smooth HSV to RGB conversion
             // https://www.shadertoy.com/view/MsS3Wc
@@ -138,8 +133,8 @@
 
             void main() {
                 vec2 uv = vUv;
-                uv.x += 4.1;
-                uv.y += 13.0;
+                uv.x += uX;
+                uv.y += uY;
 
                 vec2 p = (2.0 * gl_FragCoord.xy - uResolution) / min(uResolution.x, uResolution.y);
                 float circle = sdCircle(p, 0.8) * 1.5;
