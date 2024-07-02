@@ -4,7 +4,9 @@ import GUI from "lil-gui";
 import CustomShaderMaterial from "three-custom-shader-material/vanilla";
 
 document.addEventListener("DOMContentLoaded", () => {
+    // create gui
     const gui = new GUI();
+    // create URLSearchParams object
     const query = new URLSearchParams(window.location.search);
     const guiObject = {
         timeSpeed: 0.01,
