@@ -7,7 +7,7 @@ document.addEventListener("DOMContentLoaded", () => {
         x: 0,
         y: 35,
     };
-
+    // create gui
     const gui = new GUI();
 
     // create basic scene
